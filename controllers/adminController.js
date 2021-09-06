@@ -12,9 +12,19 @@ module.exports = {
     },
 
     addCategory:async (req,res) => {
-        console.log("ADD KEPANGGIL");
+        console.log("add kepanggil");
         const {name} = req.body;
         await Category.create({name});
+        res.redirect('/admin/category');
+    },
+    
+    editCategory:async (req,res) => {
+        console.log("Edit KEPANGGIL");
+        res.redirect('/admin/category');
+    },
+    
+    deleteCategory:async (req,res) => {
+        console.log("Delete KEPANGGIL");
         res.redirect('/admin/category');
     },
 
