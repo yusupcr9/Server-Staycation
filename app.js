@@ -6,7 +6,7 @@ var logger = require('morgan');
 
 // Import Mongoose
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/myapp');
+mongoose.connect('mongodb://localhost:27017/db_bwamern');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');

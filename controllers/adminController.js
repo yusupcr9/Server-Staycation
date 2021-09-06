@@ -1,10 +1,21 @@
+const Category = require('../models/Category');
+
 module.exports = {
     viewDashboard:(req, res) => {
         res.render('admin/dashboard/view_dashboard');
     },
 
-    viewCategory:(req,res) => {
-        res.render('admin/category/view_category');
+    viewCategory:async (req,res) => {
+        const categories = await Category.find();
+        // console.log(category);
+        res.render('admin/category/view_category', {categories});
+    },
+
+    addCategory:async (req,res) => {
+        console.log("ADD KEPANGGIL");
+        const {name} = req.body;
+        await Category.create({name});
+        res.redirect('/admin/category');
     },
 
     viewBank:(req,res) => {
