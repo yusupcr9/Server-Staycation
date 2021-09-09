@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const {objectId} = mongoose.Schema;
+const {ObjectId} = mongoose.Schema;
 
 const bookingSchema = new mongoose.Schema({
     bookingStartDate:{
@@ -12,7 +12,7 @@ const bookingSchema = new mongoose.Schema({
     },
     itemId:[{
         _id:{
-            type:objectId,
+            type:ObjectId,
             ref:'Item',
             required:true,
         },
@@ -26,11 +26,11 @@ const bookingSchema = new mongoose.Schema({
         },
     }],
     memberId:[{
-        type: objectId,
+        type: ObjectId,
         ref:"Member",
     }],
     bankId:[{
-        type: objectId,
+        type: ObjectId,
         ref:"Bank",
     }],
     proofPayment:{
