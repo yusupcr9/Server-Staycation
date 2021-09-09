@@ -2,6 +2,8 @@ const Category = require('../models/Category');
 const Bank = require('../models/Bank');
 const fs = require('fs-extra');
 const path = require('path');
+const Item = require('../models/Item');
+const Image = require('../models/Image');
 
 module.exports = {
     viewDashboard:(req, res) => {
@@ -137,6 +139,7 @@ module.exports = {
                 bank.imageUrl = `images/${req.file.filename}`;
             }
             bank.save();
+
             req.flash('alertMessage','Success Delete Bank');
             req.flash('alertStatus','success');
             res.redirect('/admin/bank');
@@ -164,10 +167,21 @@ module.exports = {
 
     },
 
-    viewItem:(req,res) => {
+    viewItem: async (req,res) => {
         try {
+            const categories = await Category.find();
+            const items = await Item.find()
+                .populate({path:'imageId', select:'id imageUrl'})
+                .populate({path:'categoryId', select:'id name'});
+            console.log(items);
+            const alertMessage = req.flash('alertMessage');
+            const alertStatus = req.flash('alertStatus');
+            const alert = {message: alertMessage, status:alertStatus}
             res.render('admin/item/view_item', {
                 title: "Staycation | Item",
+                categories,
+                items,
+                alert,
             });
         } catch (error) {
             req.flash('alertMessage',`${error.message}`);
@@ -176,6 +190,38 @@ module.exports = {
                 title: "Staycation | Item",
             });
         }
+    },
+
+    addItem: async (req,res) => {
+        try {
+            const {categoryId, title, price, city, about} = req.body;
+            if(req.files.length > 0){
+                const category = await Category.findById(categoryId);
+                const newItem = {
+                    title,
+                    price,
+                    city,
+                    description:about,
+                    categoryId : category._id,
+                }
+                const item = await Item.create(newItem);
+                category.itemId.push({_id:item._id});
+                await category.save();
+                for(let i=0; i<req.files.length; i++){
+                    const imageSave = await Image.create({imageUrl:`images/${req.files[i].filename}`});
+                    item.imageId.push({_id:imageSave._id});
+                    await item.save();
+                }
+                req.flash('alertMessage','Berhasil Add Item');
+                req.flash('alertStatus','success');
+                res.redirect('/admin/item');
+            }
+        } catch (error) {
+            req.flash('alertMessage',`${error.message}`);
+            req.flash('alertStatus','danger');
+            res.redirect('/admin/item');
+        }
+        
     },
 
     viewBooking:(req,res) => {
