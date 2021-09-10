@@ -182,6 +182,7 @@ module.exports = {
                 categories,
                 items,
                 alert,
+                action:'view',
             });
         } catch (error) {
             req.flash('alertMessage',`${error.message}`);
@@ -222,6 +223,53 @@ module.exports = {
             res.redirect('/admin/item');
         }
         
+    },
+
+    viewImageItem: async (req, res) => {
+        try {
+            const {id} = req.params;
+            const item = await Item.findById(id)
+                .populate({path:'imageId', select:'id imageUrl'})
+            const alertMessage = req.flash('alertMessage');
+            const alertStatus = req.flash('alertStatus');
+            const alert = {message: alertMessage, status:alertStatus}
+            res.render('admin/item/view_item', {
+                title: "Staycation | Show Image Item",
+                item,
+                alert,
+                action: 'show image',
+            });
+        } catch (error) {
+            req.flash('alertMessage',`${error.message}`);
+            req.flash('alertStatus','danger');
+            res.redirect('/admin/item');
+        }
+    },
+
+    showEditItem: async (req,res) => {
+        try {
+            const categories = await Category.find();
+            const {id} = req.params;
+            const item = await Item.findById(id)
+                .populate({path:'imageId', select:'id imageUrl'})
+                .populate({path:'categoryId', select:'id name'});
+            const alertMessage = req.flash('alertMessage');
+            const alertStatus = req.flash('alertStatus');
+            const alert = {message: alertMessage, status:alertStatus}
+            res.render('admin/item/view_item', {
+                title: "Staycation | Edit Item",
+                categories,
+                item,
+                alert,
+                action:'edit',
+            });
+        } catch (error) {
+            req.flash('alertMessage',`${error.message}`);
+            req.flash('alertStatus','danger');
+            res.render('admin/item/view_item', {
+                title: "Staycation | Edit Item",
+            });
+        }
     },
 
     viewBooking:(req,res) => {

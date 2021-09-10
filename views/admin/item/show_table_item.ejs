@@ -34,11 +34,16 @@
                     </td>
                     <td>
                       <form action="/admin/item/<%= items[i].id %>?_method=DELETE" method="POST">
-                        <a href="javascript:void()" type="button" class="btn btn-warning btn-circle btn-sm button-update" 
-                          data-id="<%= items[i].id %>" data-name="<%= items[i].name %>" data-namebank="<%= items[i].nameBank %>" data-nomorrekening="<%= items[i].nomorRekening %>">
+                        <a href="/admin/item/show-image/<%= items[i].id %>" class="btn btn-primary btn-circle btn-sm">
+                          <i class="fas fa-image"></i>
+                        </a>
+                        <a href="/admin/item/<%= items[i].id %>" class="btn btn-warning btn-circle btn-sm" >
                           <i class="fas fa-edit"></i>
                         </a>
                         <button type="submit" class="btn btn-danger btn-circle btn-sm"><i class="fas fa-trash"></i></button>
+                        <a href="#" class="btn btn-success btn-circle btn-sm">
+                          <i class="fas fa-plus"></i>
+                        </a>
                       </form>
                     </td>
                   </tr>
