@@ -173,7 +173,6 @@ module.exports = {
             const items = await Item.find()
                 .populate({path:'imageId', select:'id imageUrl'})
                 .populate({path:'categoryId', select:'id name'});
-            console.log(items);
             const alertMessage = req.flash('alertMessage');
             const alertStatus = req.flash('alertStatus');
             const alert = {message: alertMessage, status:alertStatus}
@@ -269,6 +268,73 @@ module.exports = {
             res.render('admin/item/view_item', {
                 title: "Staycation | Edit Item",
             });
+        }
+    },
+
+    editItem: async(req,res) => {
+        try {
+            const {categoryId, title, price, city, about} = req.body;
+            const {id} = req.params;
+            const item = await Item.findById(id)
+                .populate({path:'imageId', select:'id imageUrl'})
+                .populate({path:'categoryId', select:'id name'});
+            if(req.files.length > 0){
+                for(let i=0; i<req.files.length; i++){
+                    if(i>=item.imageId.length){
+                        console.log(`Maxloop ${i}`);
+                        console.log(`index ke ${i}`);
+                        console.log(req.files[i]);
+                        const imageSave = await Image.create({imageUrl:`images/${req.files[i].filename}`});
+                        item.imageId.push({_id:imageSave._id});
+                        await item.save();
+                    }
+                    else{
+                        const imageUpdate = await Image.findById(item.imageId[i]._id);
+                        await fs.unlink(path.join(`public/${imageUpdate.imageUrl}`));
+                        imageUpdate.imageUrl = `images/${req.files[i].filename}`;
+                        await imageUpdate.save();
+                    }
+                }
+            }
+            item.title = title;
+            item.price = price;
+            item.city = city;
+            item.description = about;
+            item.categoryId = categoryId;
+            await item.save();
+            req.flash('alertMessage','Berhasil Update Item');
+            req.flash('alertStatus','success');
+            res.redirect('/admin/item');
+        } catch (error) {
+            req.flash('alertMessage',`${error.message}`);
+            req.flash('alertStatus','danger');
+            res.redirect('/admin/item');
+        }
+    },
+
+    deleteItem: async(req,res) => {
+        try {
+            const{id} = req.params;
+            const item = await Item.findById(id).populate('imageId');
+            for(let i = 0; i< item.imageId.length; i++){
+                Image.findById(item.imageId[i]._id).then((image)=>{
+                    fs.unlink(path.join(`public/${image.imageUrl}`));
+                    image.remove();
+                }).catch((error) => {
+                    req.flash('alertMessage',`${error.message}`);
+                    req.flash('alertStatus','danger');
+                    res.redirect('/admin/item');
+                });
+            }
+            await item.remove();
+            req.flash('alertMessage','Berhasil Delete Item');
+            req.flash('alertStatus','success');
+            res.redirect('/admin/item');
+
+        } catch (error) {
+            req.flash('alertMessage',`${error.message}`);
+            req.flash('alertStatus','danger');
+            res.redirect('/admin/item');
         }
     },
 

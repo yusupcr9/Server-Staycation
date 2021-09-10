@@ -33,7 +33,7 @@
                       <%= items[i].city %>
                     </td>
                     <td>
-                      <form action="/admin/item/<%= items[i].id %>?_method=DELETE" method="POST">
+                      <form action="/admin/item/<%= items[i].id %>/delete?_method=DELETE" method="POST">
                         <a href="/admin/item/show-image/<%= items[i].id %>" class="btn btn-primary btn-circle btn-sm">
                           <i class="fas fa-image"></i>
                         </a>

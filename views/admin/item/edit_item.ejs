@@ -2,7 +2,7 @@
     <div class="card shadow mb-4 mt-2">
         <div class="card-body">
             <div class="table-responsive">
-                <form action="/admin/item" method="POST" enctype="multipart/form-data">
+                <form action="/admin/item/<%= item.id %>?_method=PUT" method="POST" enctype="multipart/form-data">
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="title">Title</label>
@@ -19,7 +19,7 @@
                         <div class="form-group">
                             <label for="category">Category</label>
                             <select class="form-control" id="categoryId" name="categoryId">
-                                <option value="<%= item.categoryId.name %>">--- <%= item.categoryId.name %> ---</option>
+                                <option value="<%= item.categoryId._id %>">--- <%= item.categoryId.name %> ---</option>
                                 <% for(let i=0; i<categories.length; i++){ %>
                                     <option value="<%= categories[i].id %>"><%= categories[i].name %></option>
                                 <% } %>
