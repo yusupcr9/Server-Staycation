@@ -281,9 +281,6 @@ module.exports = {
             if(req.files.length > 0){
                 for(let i=0; i<req.files.length; i++){
                     if(i>=item.imageId.length){
-                        console.log(`Maxloop ${i}`);
-                        console.log(`index ke ${i}`);
-                        console.log(req.files[i]);
                         const imageSave = await Image.create({imageUrl:`images/${req.files[i].filename}`});
                         item.imageId.push({_id:imageSave._id});
                         await item.save();
