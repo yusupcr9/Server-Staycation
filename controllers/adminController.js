@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const Item = require('../models/Item');
 const Image = require('../models/Image');
+const Feature = require('../models/Feature');
 
 module.exports = {
     viewDashboard:(req, res) => {
@@ -14,9 +15,7 @@ module.exports = {
         } catch (error) {
             req.flash('alertMessage',`${error.message}`);
             req.flash('alertStatus','danger');
-            res.render('admin/dashboard/view_dashboard', {
-                title: "Staycation | Dashboard",
-            });
+            res.redirect('/admin/dashboard');
         }
     },
 
@@ -34,9 +33,7 @@ module.exports = {
         } catch (error) {
             req.flash('alertMessage',`${error.message}`);
             req.flash('alertStatus','danger');
-            res.render('admin/category/view_category', {
-                title:"Staycation | Category",
-            });
+            res.redirect('/admin/category');
         }
     },
 
@@ -102,9 +99,7 @@ module.exports = {
         } catch (error) {
             req.flash('alertMessage',`${error.message}`);
             req.flash('alertStatus','danger');
-            res.render('admin/bank/view_bank', {
-                title: "Staycation | Bank",
-            });
+            res.redirect('/admin/bank');
         }
     },
 
@@ -186,9 +181,7 @@ module.exports = {
         } catch (error) {
             req.flash('alertMessage',`${error.message}`);
             req.flash('alertStatus','danger');
-            res.render('admin/item/view_item', {
-                title: "Staycation | Item",
-            });
+            res.redirect('/admin/item');
         }
     },
 
@@ -335,6 +328,97 @@ module.exports = {
         }
     },
 
+    viewDetailItem: async (req,res) => {
+        const {itemId} = req.params;
+        try {
+            const alertMessage = req.flash('alertMessage');
+            const alertStatus = req.flash('alertStatus');
+            const alert = {message: alertMessage, status:alertStatus}
+            const features = await Feature.find({'itemId':itemId});
+            res.render('admin/item/detail_item/view_detail_item', {
+                title: "Staycation | Detail Item",
+                alert,
+                itemId,
+                features,
+            });
+        } catch (error) {
+            req.flash('alertMessage',`${error.message}`);
+            req.flash('alertStatus','danger');
+            res.redirect(`/admin/item/show-detail-item/${itemId}`);
+        }
+    },
+
+    addFeature: async (req,res) => {
+        const {name, qty, itemId} = req.body;
+        try {
+            if(!req.file){
+                req.flash('alertMessage', 'Image not found');
+                req.flash('alertStatus', 'danger');
+                res.redirect(`/admin/item/show-detail-item/${itemId}`);
+            }
+            const feature = await Feature.create({
+                name, 
+                qty, 
+                itemId, 
+                imageUrl : `images/${req.file.filename}`,
+            });
+            const item = await Item.findById(itemId);
+            item.featureId.push({'_id':feature._id});
+            await item.save();
+            req.flash('alertMessage','Success Add Feature');
+            req.flash('alertStatus','success');
+            res.redirect(`/admin/item/show-detail-item/${itemId}`);
+        } catch (error) {
+            req.flash('alertMessage',`${error.message}`);
+            req.flash('alertStatus','danger');
+            res.redirect(`/admin/item/show-detail-item/${itemId}`);
+        }
+    },
+
+    editFeature: async(req,res) => {
+        const {name, qty, id, itemId} = req.body;
+        const feature = await Feature.findById(id);
+        try {
+            feature.name = name;
+            feature.qty = qty;
+            if(req.file){
+                await fs.unlink(path.join(`public/${feature.imageUrl}`));
+                feature.imageUrl = `images/${req.file.filename}`;
+            }
+            await feature.save();
+            req.flash('alertMessage','Berhasil Update Feature');
+            req.flash('alertStatus','success');
+            res.redirect(`/admin/item/show-detail-item/${itemId}`);
+        } catch (error) {
+            req.flash('alertMessage',`${error.message}`);
+            req.flash('alertStatus','danger');
+            res.redirect(`/admin/item/show-detail-item/${itemId}`);
+        }
+    },
+    
+    deleteFeature: async(req,res) => {
+        const {id, itemId} = req.params;
+        try {
+            const feature = await Feature.findById(id);
+            const item = await Item.findById(itemId).populate('featureId');
+            for(let i =0; i<item.featureId.length; i++){
+                if(item.featureId[i]._id.toString() === feature._id.toString()){
+                    item.featureId.pull({'_id':feature._id});
+                    await item.save()
+                }
+            }
+            await fs.unlink(path.join(`public/${feature.imageUrl}`));
+            await feature.remove();
+            req.flash('alertMessage','Berhasil Delete Feature');
+            req.flash('alertStatus','success');
+            res.redirect(`/admin/item/show-detail-item/${itemId}`);
+        } catch (error) {
+            req.flash('alertMessage',`${error.message}`);
+            req.flash('alertStatus','danger');
+            res.redirect(`/admin/item/show-detail-item/${itemId}`);
+        }
+    },
+
     viewBooking:(req,res) => {
         try {
             res.render('admin/booking/view_booking', {
@@ -343,9 +427,7 @@ module.exports = {
         } catch (error) {
             req.flash('alertMessage',`${error.message}`);
             req.flash('alertStatus','danger');
-            res.render('admin/booking/view_booking', {
-                title: "Staycation | Booking",
-            });
+            res.redirect('/admin/booking');
         }
     },
 }
