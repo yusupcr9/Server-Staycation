@@ -45,7 +45,7 @@ module.exports = {
         }
       }
 
-      const testiomnial = {
+      const testimonial = {
         _id: "asd129uasdads1",
         imageUrl: "images/testimonial12.jpg",
         name: "Happy Family",
@@ -63,7 +63,7 @@ module.exports = {
         },
         mostPicked,
         category,
-        testiomnial,
+        testimonial,
       });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -80,7 +80,7 @@ module.exports = {
 
       const bank = await Bank.find();
 
-      const testiomnial = {
+      const testimonial = {
         _id: "asd129uasdads1",
         imageUrl: "images/testimonial11.jpg",
         name: "Happy Family",
@@ -93,7 +93,7 @@ module.exports = {
       res.status(200).json({
         ...item._doc,
         bank,
-        testiomnial,
+        testimonial,
       });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
